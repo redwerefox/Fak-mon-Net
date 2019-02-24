@@ -1,0 +1,8 @@
+# in progress
+
+
+pip install PIL
+pip install numpy
+pip install scipy
+pip install mathplotlib
+pip install torch
