@@ -35,18 +35,19 @@ print("Val size: %i" % len(data_dict["X_val"]))
 print("Test size: %i" % len(data_dict["X_test"]))
 
 
+X = data_dict["X_test"]
+y = data_dict["y_test"]
 #Todo Get Vis working
 classes = ['normal', 'shiny']
 num_classes = len(classes)
 samples_per_class = 7
-for cls_idx, cls in enumerate(classes):
-    cls_data = [datum for datum in testdata if datum[1] == cls_idx]
-    rnd_idxs = np.random.randint(0, len(cls_data), samples_per_class)
-    rnd_cls_data = [datum for i, datum in enumerate(cls_data) if i in rnd_idxs]
-    for i, cls_datum in enumerate(rnd_cls_data):
-        plt_idx = i * num_classes + cls_idx + 1
+for y_hat, cls in enumerate(classes):
+    idxs = np.flatnonzero(y == y_hat)
+    idxs = np.random.choice(idxs, samples_per_class, replace=False)
+    for i, idx in enumerate(idxs):
+        plt_idx = i * num_classes + y_hat + 1
         plt.subplot(samples_per_class, num_classes, plt_idx)
-        plt.imshow(cls_datum[0].numpy().transpose(1,2,0))
+        plt.imshow(X[idx].transpose(1,2,0).astype('uint8'))
         plt.axis('off')
         if i == 0:
             plt.title(cls)
