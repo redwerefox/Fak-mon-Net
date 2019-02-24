@@ -8,8 +8,47 @@ from PIL import Image
 import os.path
 import _pickle as pickle
 
-class DatasetGen():
+class OverfitSampler(object):
+    """
+    Sample dataset to overfit.
+    """
 
+    def __init__(self, num_samples):
+        self.num_samples = num_samples
+
+    def __iter__(self):
+        return iter(range(self.num_samples))
+
+    def __len__(self):
+        return self.num_samples
+
+class PytorchDataset (data.Dataset):
+	def __init__ (self, X, y):
+		self.y = y
+		self.X = X
+		print("init set")
+
+	def __getitem__(self, index):
+		img = self.X[index]
+		label = self.y[index]
+
+		img = torch.from_numpy(img)
+		return img, label
+
+	def __len__(self):
+		return len(self.y)
+
+
+def ConvertDatasetDictToTorch(datasetDict):
+	train_data, train_label = datasetDict["X_train"], datasetDict["y_train"]
+	valid_data, valid_label = datasetDict["X_val"], datasetDict["y_val"]
+	test_data, test_label = datasetDict["X_test"], datasetDict["y_test"]
+
+	return ( PytorchDataset(train_data, train_label),
+			PytorchDataset(valid_data, valid_label),
+			PytorchDataset(test_data, test_label))
+
+class DatasetGen():
 
 	def BinaryShinyPokemonDataset(self, normalize=False):
 		X = []
@@ -18,8 +57,8 @@ class DatasetGen():
 		#num_total = num_training + num_validation + num_test
 
 		#using Path for Windows/OS/Linux compability
-		datasetFolder = ("../../dataset/pokemon/main-sprites/black-white/")
-		datasetFolderShiny = ("../../dataset/pokemon/main-sprites/black-white/shiny/")
+		datasetFolder = ("../dataset/pokemon/main-sprites/black-white/")
+		datasetFolderShiny = ("../dataset/pokemon/main-sprites/black-white/shiny/")
 
 		#load not shiny pokemon
 		for filename in os.listdir(datasetFolder):
