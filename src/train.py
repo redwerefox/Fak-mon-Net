@@ -36,16 +36,25 @@ def main():
     val_loader = torch.utils.data.DataLoader(val_data, batch_size=64, shuffle=False, num_workers=4)
 
     ############################################################################
-    # TODO: Initialize a model and train it using your Solver class. Start     #
-    # with the previously given set of hyperparameters.                        #
+    # Hyper parameter Grid search : Set grids below                            #
     ############################################################################
 
-    model = ClassificationCNN(input_dim=[3,96,96],num_classes=2,
-        num_filters=6, kernel_size=3, stride_conv=1,
-        weight_scale=0.001, pool=2, stride_pool=2, hidden_dim=100, dropout=0.0)
-    model.to(device)
-    solver = Solver(optim_args={"lr": 1e-3, "weight_decay": 1e-3})
-    solver.train(model, train_loader, val_loader, log_nth=10, num_epochs=5)
+    lrs = [1e-2]
+    kernelsizes = [7]
+    hidden_dims = [50]
+    convArray=([16,16,16],[16])
+
+    for conv in convArray:
+        for kernel_size in kernelsizes:
+            for hidden_dim in hidden_dims:
+                for lr in lrs:
+                    model = ClassificationCNN(input_dim=[3,96,96],num_classes=2,
+                        convArray=conv, kernel_size=kernel_size, stride_conv=1,
+                        weight_scale=0.001, pool=2, stride_pool=2, hidden_dim=hidden_dim, dropout=0.0)
+                    model.to(device)
+                    solver = Solver(optim_args={"lr": lr, "weight_decay": 1e-3})
+                    print("training now with values: lr=%s, hidden_dim=%s, filtersize=%s, convArray=%s" % (lr, hidden_dim,kernel_size,str(conv)))
+                    solver.train(model, train_loader, val_loader, log_nth=20, num_epochs=12)
 
     from src.vis_utils import visualize_grid
 

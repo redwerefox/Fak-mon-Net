@@ -16,7 +16,7 @@ class ClassificationCNN(nn.Module):
 	channels.
 	"""
 
-	def __init__(self, input_dim, num_classes, num_filters=32, kernel_size=5,
+	def __init__(self, input_dim, num_classes, convArray, kernel_size=5,
 				 stride_conv=1, weight_scale=0.001, pool=2, stride_pool=2, hidden_dim=100,
 				  dropout=0.0):
 		"""
@@ -36,7 +36,7 @@ class ClassificationCNN(nn.Module):
 		"""
 		super(ClassificationCNN, self).__init__()
 		channels, height, width = input_dim
-
+		self.convArray = convArray
 		########################################################################
 		# TODO: Initialize the necessary trainable layers to resemble the	   #
 		# ClassificationCNN architecture  from the class docstring.			   #
@@ -53,13 +53,14 @@ class ClassificationCNN(nn.Module):
 		# will not coincide with the Jupyter notebook cell.					   #
 		########################################################################
 
-		padding = (kernel_size) // 2
-		self.conv1 = nn.Conv2d(channels, num_filters, kernel_size, stride_conv, padding)
-		self.conv1.weight.data.mul_(weight_scale)
-		poolpadding = pool // 2
 		self.max_pool2d = nn.MaxPool2d(pool)
 		afterPoolSize = height // 2
-		self.fc1 = nn.Linear(num_filters * afterPoolSize** 2, hidden_dim, bias = True)
+		for idx, conv in enumerate(convArray):
+			padding = (kernel_size) // 2
+			setattr(self, "conv%d" % idx, nn.Conv2d(channels, conv, kernel_size, stride_conv, padding))
+			channels = conv
+			getattr(self, "conv%d" % idx).weight.data.mul_(weight_scale)
+		self.fc1 = nn.Linear(convArray[len(convArray)-1] * afterPoolSize** 2, hidden_dim, bias = True)
 		self.dropout = nn.Dropout(dropout)
 		self.fc2 = nn.Linear(hidden_dim, num_classes, bias = True)
 
@@ -83,10 +84,10 @@ class ClassificationCNN(nn.Module):
 		# transition from the spatial input image to the flat fully connected  #
 		# layers.															   #
 		########################################################################
-
-		x = self.conv1(x)
-		x = F.relu(x)
 		x = self.max_pool2d(x)
+		for idx, conv in enumerate(self.convArray):
+			x = getattr(self, "conv%d" % idx)(x)
+			x = F.relu(x)
 		x = x.view(-1, self.num_flat_features(x))
 		x = F.relu(self.dropout(self.fc1(x)))
 		x = self.fc2(x)
