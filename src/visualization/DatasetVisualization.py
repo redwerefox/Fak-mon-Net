@@ -29,14 +29,14 @@ plt.rcParams['image.cmap'] = 'gray'
 
 datasetGen = DatasetGen()
 datasetGen.BinaryShinyPokemonDataset()
-data_dict = datasetGen.Subsample([0.6,0.2,0.2])
+data_dict = datasetGen.Subsample([0.8,0.1,0.1])
 print("Train size: %i" % len(data_dict["X_train"]))
 print("Val size: %i" % len(data_dict["X_val"]))
 print("Test size: %i" % len(data_dict["X_test"]))
 
 
-X = data_dict["X_test"]
-y = data_dict["y_test"]
+X = data_dict["X_train"]
+y = data_dict["y_train"]
 #Todo Get Vis working
 classes = ['normal', 'shiny']
 num_classes = len(classes)

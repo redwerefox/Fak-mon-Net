@@ -6,7 +6,7 @@ from torch.autograd import Variable
 import torch.nn.functional as F
 
 class Solver(object):
-    default_adam_args = {"lr": 1e-4,
+    default_adam_args = {"lr": 1e-3,
                          "betas": (0.9, 0.999),
                          "eps": 1e-8,
                          "weight_decay": 0.0}

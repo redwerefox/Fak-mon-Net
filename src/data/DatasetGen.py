@@ -100,10 +100,11 @@ class DatasetGen():
 		print("Dataset shape after shuffle: " + str(X.shape))
 
 		if(normalize):
-			X = np.divide(X, 255)
+			pass
+			#X = np.divide(X, 255)
 			#Normalize the data: subtract the mean image
-			mean_image = np.mean(X, axis=0)
-			X -= mean_image
+			#mean_image = np.mean(X, axis=0)
+			#X -= mean_image
 			#todo variance divide
 
 
