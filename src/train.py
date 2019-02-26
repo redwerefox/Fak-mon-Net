@@ -30,7 +30,7 @@ def main():
     num_train = len(train_data)
     OverfitSampler = SequentialSampler(range(num_train))
 
-    train_loader = torch.utils.data.DataLoader(train_data, batch_size=64, shuffle=False, num_workers=4)
+    train_loader = torch.utils.data.DataLoader(train_data, batch_size=64, shuffle=True, num_workers=4)
     val_loader = torch.utils.data.DataLoader(val_data, batch_size=64, shuffle=False, num_workers=4)
 
     ############################################################################
@@ -39,10 +39,10 @@ def main():
 
     print(train_data)
 
-    lrs = [1e-4]
-    kernelsizes = [3]
-    hidden_dims = [100]
-    convArray=([16],[32])
+    lrs = [1e-3]
+    kernelsizes = [1]
+    hidden_dims = [200]
+    convArray=([64,64,64,64],[0])
 
     for conv in convArray:
         for kernel_size in kernelsizes:
@@ -52,9 +52,9 @@ def main():
                         convArray=conv, kernel_size=kernel_size, stride_conv=1,
                         weight_scale=0.02, pool=2, stride_pool=2, hidden_dim=hidden_dim, dropout=0.0)
                     model.to(device)
-                    solver = Solver(optim_args={"lr": lr, "weight_decay": 1e-3})
+                    solver = Solver(optim_args={"lr": lr, "weight_decay": 1e-5})
                     print("training now with values: lr=%s, hidden_dim=%s, filtersize=%s, convArray=%s" % (lr, hidden_dim,kernel_size,str(conv)))
-                    solver.train(model, train_loader, val_loader, log_nth=6, num_epochs=10)
+                    solver.train(model, train_loader, val_loader, log_nth=6, num_epochs=10, L1=False, reg=0.1)
 
     from src.vis_utils import visualize_grid
 

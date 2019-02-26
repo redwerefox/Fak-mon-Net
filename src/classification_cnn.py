@@ -37,36 +37,24 @@ class ClassificationCNN(nn.Module):
 		super(ClassificationCNN, self).__init__()
 		channels, height, width = input_dim
 		self.convArray = convArray
-		########################################################################
-		# TODO: Initialize the necessary trainable layers to resemble the	   #
-		# ClassificationCNN architecture  from the class docstring.			   #
-		#																	   #
-		# In- and output features should not be hard coded which demands some  #
-		# calculations especially for the input of the first fully			   #
-		# convolutional layer.												   #
-		#																	   #
-		# The convolution should use "same" padding which can be derived from  #
-		# the kernel size and its weights should be scaled. Layers should have #
-		# a bias if possible.												   #
-		#																	   #
-		# Note: Avoid using any of PyTorch's random functions or your output   #
-		# will not coincide with the Jupyter notebook cell.					   #
-		########################################################################
 
-		self.max_pool2d = nn.MaxPool2d(pool)
-		afterPoolSize = height // 2
+		#self.max_pool2d = nn.MaxPool2d(pool)
+		#afterPoolSize = height // 2
 		for idx, conv in enumerate(convArray):
 			padding = (kernel_size) // 2
 			setattr(self, "conv%d" % idx, nn.Conv2d(channels, conv, kernel_size, stride_conv, padding))
 			channels = conv
-			getattr(self, "conv%d" % idx).weight.data.mul_(weight_scale)
+			#getattr(self, "conv%d" % idx).weight.data.mul_(weight_scale)
+			torch.nn.init.xavier_uniform_(getattr(self, "conv%d" % idx).weight)
+		self.max_pool2d = nn.MaxPool2d(pool)
+		afterPoolSize = height // 2
 		self.fc1 = nn.Linear(convArray[len(convArray)-1] * afterPoolSize** 2, hidden_dim, bias = True)
+		torch.nn.init.xavier_uniform_(self.fc1.weight)
 		self.dropout = nn.Dropout(dropout)
 		self.fc2 = nn.Linear(hidden_dim, num_classes, bias = True)
+		torch.nn.init.xavier_uniform_(self.fc2.weight)
 
-		############################################################################
-		#							  END OF YOUR CODE							   #
-		############################################################################
+
 
 	def forward(self, x):
 		"""
@@ -77,23 +65,15 @@ class ClassificationCNN(nn.Module):
 		- x: PyTorch input Variable
 		"""
 
-		########################################################################
-		# TODO: Chain our previously initialized fully-connected neural		   #
-		# network layers to resemble the architecture drafted in the class	   #
-		# docstring. Have a look at the Variable.view function to make the	   #
-		# transition from the spatial input image to the flat fully connected  #
-		# layers.															   #
-		########################################################################
-		x = self.max_pool2d(x)
+
+		#x = self.max_pool2d(x)
 		for idx, conv in enumerate(self.convArray):
 			x = getattr(self, "conv%d" % idx)(x)
 			x = F.relu(x)
+		x = self.max_pool2d(x)
 		x = x.view(-1, self.num_flat_features(x))
 		x = F.relu(self.dropout(self.fc1(x)))
 		x = self.fc2(x)
-		########################################################################
-		#							  END OF YOUR CODE						   #
-		########################################################################
 
 		return x
 

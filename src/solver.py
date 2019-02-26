@@ -30,7 +30,7 @@ class Solver(object):
         self.val_acc_history = []
         self.val_loss_history = []
 
-    def train(self, model, train_loader, val_loader, num_epochs=1, log_nth=0):
+    def train(self, model, train_loader, val_loader, num_epochs=1, log_nth=0, reg = 0.01, L1=False):
         """
         Train a given model with the provided data.
 
@@ -60,6 +60,12 @@ class Solver(object):
                 optim.zero_grad()
                 output = model.forward(X)
                 loss = self.loss_func(output, y)
+                # L2 penalty is already implemented in optim and controlled with parameter weight decay
+                if L1:
+                    l1 = 0
+                    for p in model.parameters():
+                        l1 = l1 + p.abs().sum()
+                    loss += reg * l1
                 loss.backward()
                 optim.step()
                 self.train_loss_history.append(loss)
@@ -79,6 +85,11 @@ class Solver(object):
                 y = Variable(target.type(torch.LongTensor))
                 output = model.forward(X)
                 var_loss = self.loss_func(output, y)
+                if L1:
+                    l1 = 0
+                    for p in model.parameters():
+                        l1 = l1 + p.abs().sum()
+                    var_loss += reg * l1
                 val_correct, val_total = self.accuracy (output, y.type(torch.LongTensor))
                 val_accuracy = 100.0 * float(val_correct) / val_total
                 accuracies.append(val_accuracy)
