@@ -7,6 +7,7 @@ import PIL
 from PIL import Image
 import os.path
 import _pickle as pickle
+from shutil import copyfile
 
 class OverfitSampler(object):
     """
@@ -48,17 +49,19 @@ def ConvertDatasetDictToTorch(datasetDict):
 			PytorchDataset(valid_data, valid_label),
 			PytorchDataset(test_data, test_label))
 
+
 class DatasetGen():
 
-	def BinaryShinyPokemonDataset(self, normalize=False):
+	def BinaryShinyPokemonDataset(self, normalize=False, storeToDir=False):
 		X = []
 		y = []
 		self.num_count = 0
 		#num_total = num_training + num_validation + num_test
 
 		#using Path for Windows/OS/Linux compability
-		datasetFolder = ("../dataset/pokemon/main-sprites/black-white/")
-		datasetFolderShiny = ("../dataset/pokemon/main-sprites/black-white/shiny/")
+		datasetFolder = ("../../dataset/pokemon/main-sprites/black-white/")
+		datasetFolderShiny = ("../../dataset/pokemon/main-sprites/black-white/shiny/")
+
 
 		#load not shiny pokemon
 		for filename in os.listdir(datasetFolder):
@@ -140,7 +143,80 @@ class DatasetGen():
 
 		return {"X_train" : X_train, "y_train" : y_train, "X_val" : X_val, "y_val" : y_val, "X_test" : X_test, "y_test" : y_test}
 
-	
+
+	def StoreShuffledDataset(self, datasetSplit = [0.7,0.2,0.1]):
+		self.num_count = 0
+		y = []
+
+		# using Path for Windows/OS/Linux compability
+		datasetFolder = ("../../dataset/pokemon/main-sprites/black-white/")
+		datasetFolderShiny = ("../../dataset/pokemon/main-sprites/black-white/shiny/")
+
+		destinationFolder = ("../../dataset/pokemon/ShinySet/train")
+		destinationFolderEval = ("../../dataset/pokemon/ShinySet/val")
+		destinationFolderTest = ("../../dataset/pokemon/ShinySet/test")
+		X = []
+
+		# load not shiny pokemon
+		for filename in os.listdir(datasetFolder):
+			if filename.endswith("png"):
+				X.append(datasetFolder + filename)
+				y.append(0)  # not shiny
+				self.num_count += 1
+
+		# shiny
+		for filename in os.listdir(datasetFolderShiny):
+			if filename.endswith("png"):
+				X.append(datasetFolderShiny + filename)
+				y.append(1)
+				self.num_count += 1
+
+		randomize = np.arange(len(y))
+		np.random.shuffle(randomize)
+
+		X = np.array(X)
+		y = np.array(y)
+
+		X = X[randomize]
+		y = y[randomize]
+
+		num_training = int(self.num_count * datasetSplit[0])
+		num_validation = int(self.num_count * datasetSplit[1])
+		num_test = int(self.num_count * datasetSplit[2])
+
+		# Subsample the data
+		mask = range(num_training)
+		X_train = X[mask]
+		y_train = y[mask]
+		mask = range(num_training, num_training + num_validation)
+		X_val = X[mask]
+		y_val = y[mask]
+		mask = range(num_training + num_validation,
+					 num_training + num_validation + num_test)
+		X_test = X[mask]
+		y_test = y[mask]
+
+		for i, X in enumerate(X_train):
+			if y_train[i] == 0:
+				copyfile(os.path.abspath(X), os.path.abspath(destinationFolder + "/normal/" + str(i) + ".png"))
+			else :
+				copyfile(os.path.abspath(X), os.path.abspath(destinationFolder + "/shiny/" + str(i) + ".png"))
+
+		for i, X in enumerate(X_val):
+			if y_val[i] == 0:
+				copyfile(os.path.abspath(X), os.path.abspath(destinationFolderEval + "/normal/" + str(i) + ".png"))
+			else :
+				copyfile(os.path.abspath(X), os.path.abspath(destinationFolderEval + "/shiny/" + str(i) + ".png"))
+
+		for i, X in enumerate(X_test):
+			if y_test[i] == 0:
+				copyfile(os.path.abspath(X), os.path.abspath(destinationFolderEval + "/normal/" + str(i) + ".png"))
+			else :
+				copyfile(os.path.abspath(X), os.path.abspath(destinationFolderEval + "/shiny/" + str(i) + ".png"))
+
+		return
+
+
 def load_image( infilename ) :
 	img = Image.open( infilename )
 	img.load()
@@ -158,7 +234,8 @@ def rel_error(x, y):
 
 def main():
 	datasetGen = DatasetGen()
-	datasetGen.BinaryShinyPokemonDataset()
+	#datasetGen.BinaryShinyPokemonDataset()
+	datasetGen.StoreShuffledDataset()
 
 if __name__ == "__main__":
 	main()

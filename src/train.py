@@ -2,7 +2,7 @@ import matplotlib.pyplot as plt
 import torch
 import torch.utils.data
 
-from src.classification_cnn import ClassificationCNN
+from src.networks.classification_cnn import ClassificationCNN
 from src.data.DatasetGen import DatasetGen, ConvertDatasetDictToTorch
 
 def main():
@@ -42,7 +42,7 @@ def main():
     lrs = [1e-3]
     kernelsizes = [1]
     hidden_dims = [200]
-    convArray=([64,64,64,64],[0])
+    convArray=([8,8,8,8],[0])
 
     for conv in convArray:
         for kernel_size in kernelsizes:
