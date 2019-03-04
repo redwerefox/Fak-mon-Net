@@ -195,6 +195,11 @@ class DatasetGen():
 					 num_training + num_validation + num_test)
 		X_test = X[mask]
 		y_test = y[mask]
+		
+		#clear old data
+		for dist in (destinationFolder, destinationFolderEval, destinationFolderTest):
+			rmtree(dist + "/normal/")
+			rmtree(dist + "/shiny/")
 
 		for i, X in enumerate(X_train):
 			if y_train[i] == 0:
