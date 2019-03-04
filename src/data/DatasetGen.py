@@ -8,6 +8,7 @@ from PIL import Image
 import os.path
 import _pickle as pickle
 from shutil import copyfile
+from shutil import rmtree
 
 class OverfitSampler(object):
     """
@@ -59,8 +60,8 @@ class DatasetGen():
 		#num_total = num_training + num_validation + num_test
 
 		#using Path for Windows/OS/Linux compability
-		datasetFolder = ("../../dataset/pokemon/main-sprites/black-white/")
-		datasetFolderShiny = ("../../dataset/pokemon/main-sprites/black-white/shiny/")
+		datasetFolder = ("../dataset/pokemon/main-sprites/black-white/")
+		datasetFolderShiny = ("../dataset/pokemon/main-sprites/black-white/shiny/")
 
 
 		#load not shiny pokemon
