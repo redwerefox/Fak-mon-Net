@@ -30,8 +30,8 @@ def main():
     num_train = len(train_data)
     OverfitSampler = SequentialSampler(range(num_train))
 
-    train_loader = torch.utils.data.DataLoader(train_data, batch_size=16, shuffle=True, num_workers=4)
-    val_loader = torch.utils.data.DataLoader(val_data, batch_size=16, shuffle=False, num_workers=4)
+    train_loader = torch.utils.data.DataLoader(train_data, batch_size=64, shuffle=True, num_workers=4)
+    val_loader = torch.utils.data.DataLoader(val_data, batch_size=64, shuffle=False, num_workers=4)
 
     ############################################################################
     # Hyper parameter Grid search : Set grids below                            #
@@ -39,7 +39,7 @@ def main():
 
     print(train_data)
 
-    lr= 1e-5
+    lr= 1e-3
     kernelsize = 3
     hidden_dims = [200]
     convArray = [64,128]

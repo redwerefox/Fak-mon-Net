@@ -50,7 +50,7 @@ class ClassificationCNN(nn.Module):
             channels = conv
             # getattr(self, "conv%d" % idx).weight.data.mul_(weight_scale)
             torch.nn.init.xavier_uniform_(getattr(self, "conv%d" % idx).weight)
-            self.max_pool2d = nn.MaxPool2d(pool)
+            self.max_pool2d = nn.MaxPool2d(pool).cuda()
             afterPoolSize /= 2
         last_Dim = int(convolutionalDims[len(convolutionalDims) - 1] * afterPoolSize ** 2)
         for idx, hidden_dim in enumerate(hiddenDims):

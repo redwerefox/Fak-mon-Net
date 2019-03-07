@@ -56,10 +56,10 @@ class Solver(object):
                 X = Variable(data.type(torch.FloatTensor))
                 y = Variable(target.type(torch.LongTensor))
                 iteration_label = "Iteration" + str(batch_idx + 1)
-                #data, target = data.to(device), target.to(device)
+                data, target = X.to(device), y.to(device)
                 optim.zero_grad()
-                output = model.forward(X)
-                loss = self.loss_func(output, y)
+                output = model.forward(data)
+                loss = self.loss_func(output, target)
                 # L2 penalty is already implemented in optim and controlled with parameter weight decay
                 if L1:
                     l1 = 0
